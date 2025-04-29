@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive ML Visualization Tool</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Interactive Machine Learning Visualization</h1>
+        <p>Adjust the parameters to see how different polynomial models fit the data and how the error metrics change.</p>
+        
+        <div class="visualization-container">
+            <div class="chart-container">
+                <canvas id="scatterChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="controls-container">
+            <div class="data-controls">
+                <h2>Data Controls</h2>
+                <div class="slider-container">
+                    <label for="numPoints">Number of Data Points: <span id="numPointsValue">50</span></label>
+                    <div class="slider-row">
+                        <input type="range" id="numPoints" min="10" max="100" value="50">
+                    </div>
+                </div>
+                
+                <div class="slider-container">
+                    <label for="noiseLevel">Noise Level: <span id="noiseLevelValue">1.5</span></label>
+                    <div class="slider-row">
+                        <input type="range" id="noiseLevel" min="0" max="3" step="0.1" value="1.5">
+                    </div>
+                </div>
+                
+                <button id="regenerateData">Regenerate Data</button>
+                
+                <div class="metrics-explanation">
+                    <h3>Metric Explanations</h3>
+                    <p><strong>MSE (Mean Squared Error):</strong> Average of the squared differences between predicted and actual values. Lower values indicate better fit.</p>
+                    <p class="formula">\[ MSE = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2 \]</p>
+                    <p class="var-explanation">Where \(y_i\) is the actual value, \(\hat{y}_i\) is the predicted value from the model, and \(n\) is the number of data points.</p>
+                    
+                    <p><strong>MAE (Mean Absolute Error):</strong> Average of the absolute differences between predicted and actual values. More robust to outliers than MSE.</p>
+                    <p class="formula">\[ MAE = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i| \]</p>
+                    <p class="var-explanation">Where \(y_i\) is the actual value, \(\hat{y}_i\) is the predicted value from the model, and \(n\) is the number of data points.</p>
+                    
+                    <p><strong>R² (R-squared):</strong> Proportion of variance explained by the model, from 0 to 1. Higher values indicate better fit (1 = perfect fit).</p>
+                    <p class="formula">\[ R^2 = 1 - \frac{\sum_{i=1}^{n} (y_i - \hat{y}_i)^2}{\sum_{i=1}^{n} (y_i - \bar{y})^2} \]</p>
+                    <p class="var-explanation">Where \(y_i\) is the actual value, \(\hat{y}_i\) is the predicted value, \(\bar{y}\) is the mean of actual values, and \(n\) is the number of data points.</p>
+                </div>
+            </div>
+            
+            <div class="model-controls">
+                <h2>Model Parameters</h2>
+                
+                <div class="model-toggle">
+                    <button id="toggleLinear">Linear</button>
+                    <button id="toggleQuadratic">Quadratic</button>
+                    <button id="toggleCubic">Cubic</button>
+                </div>
+                
+                <div class="model-card" id="linearControls">
+                    <h3>Linear Model <span class="error" id="linearError"></span></h3>
+                    <div class="slider-container">
+                        <label for="linearA">a (slope): <span id="linearAValue">1</span></label>
+                        <div class="slider-row">
+                            <input type="range" id="linearA" min="-5" max="5" step="0.1" value="1">
+                        </div>
+                    </div>
+                    <div class="slider-container">
+                        <label for="linearB">b (intercept): <span id="linearBValue">0</span></label>
+                        <div class="slider-row">
+                            <input type="range" id="linearB" min="-5" max="5" step="0.1" value="0">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="model-card" id="quadraticControls">
+                    <h3>Quadratic Model <span class="error" id="quadraticError"></span></h3>
+                    <div class="slider-container">
+                        <label for="quadraticA">a (x²): <span id="quadraticAValue">1</span></label>
+                        <div class="slider-row">
+                            <input type="range" id="quadraticA" min="-2" max="2" step="0.1" value="1">
+                        </div>
+                    </div>
+                    <div class="slider-container">
+                        <label for="quadraticB">b (x): <span id="quadraticBValue">0</span></label>
+                        <div class="slider-row">
+                            <input type="range" id="quadraticB" min="-5" max="5" step="0.1" value="0">
+                        </div>
+                    </div>
+                    <div class="slider-container">
+                        <label for="quadraticC">c (constant): <span id="quadraticCValue">0</span></label>
+                        <div class="slider-row">
+                            <input type="range" id="quadraticC" min="-5" max="5" step="0.1" value="0">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="model-card" id="cubicControls">
+                    <h3>Cubic Model <span class="error" id="cubicError"></span></h3>
+                    <div class="slider-container">
+                        <label for="cubicA">a (x³): <span id="cubicAValue">0.2</span></label>
+                        <div class="slider-row">
+                            <input type="range" id="cubicA" min="-1" max="1" step="0.1" value="0.2">
+                        </div>
+                    </div>
+                    <div class="slider-container">
+                        <label for="cubicB">b (x²): <span id="cubicBValue">-0.5</span></label>
+                        <div class="slider-row">
+                            <input type="range" id="cubicB" min="-2" max="2" step="0.1" value="-0.5">
+                        </div>
+                    </div>
+                    <div class="slider-container">
+                        <label for="cubicC">c (x): <span id="cubicCValue">1</span></label>
+                        <div class="slider-row">
+                            <input type="range" id="cubicC" min="-5" max="5" step="0.1" value="1">
+                        </div>
+                    </div>
+                    <div class="slider-container">
+                        <label for="cubicD">d (constant): <span id="cubicDValue">0</span></label>
+                        <div class="slider-row">
+                            <input type="range" id="cubicD" min="-5" max="5" step="0.1" value="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="metrics-container">
+            <h2>Error Metrics</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <h3>Linear Model MSE</h3>
+                    <div class="metric-value" id="linearMSE">-</div>
+                </div>
+                <div class="metric-card">
+                    <h3>Linear Model MAE</h3>
+                    <div class="metric-value" id="linearMAE">-</div>
+                </div>
+                <div class="metric-card">
+                    <h3>Linear Model R²</h3>
+                    <div class="metric-value" id="linearRSquared">-</div>
+                </div>
+                
+                <div class="metric-card">
+                    <h3>Quadratic Model MSE</h3>
+                    <div class="metric-value" id="quadraticMSE">-</div>
+                </div>
+                <div class="metric-card">
+                    <h3>Quadratic Model MAE</h3>
+                    <div class="metric-value" id="quadraticMAE">-</div>
+                </div>
+                <div class="metric-card">
+                    <h3>Quadratic Model R²</h3>
+                    <div class="metric-value" id="quadraticRSquared">-</div>
+                </div>
+                
+                <div class="metric-card">
+                    <h3>Cubic Model MSE</h3>
+                    <div class="metric-value" id="cubicMSE">-</div>
+                </div>
+                <div class="metric-card">
+                    <h3>Cubic Model MAE</h3>
+                    <div class="metric-value" id="cubicMAE">-</div>
+                </div>
+                <div class="metric-card">
+                    <h3>Cubic Model R²</h3>
+                    <div class="metric-value" id="cubicRSquared">-</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="lib/chart.umd.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/models.js"></script>
+    <script src="js/visualization.js"></script>
+</body>
+</html>
